@@ -29,7 +29,6 @@ XORG_WITH_XMLTO(0.0.22)
 XORG_WITH_FOP([],[no])
 XORG_WITH_XSLTPROC
 XORG_CHECK_SGML_DOCTOOLS(1.10)
-XORG_PROG_RAWCPP
 XORG_WITH_PERL
 
 # Required when PKG_CHECK_MODULES called within an if statement
@@ -68,7 +67,7 @@ AC_SUBST(LDFLAGS_FOR_BUILD)
 # Checks for pkg-config packages
 
 # Always required
-X11_REQUIRES='xproto >= 7.0.17 xextproto xtrans xcb >= 1.1.92'
+X11_REQUIRES='xproto >= 7.0.17 xextproto xtrans xcb >= 1.1.92 xlocale-config'
 X11_EXTRA_DEPS="xcb >= 1.1.92"
 
 PKG_PROG_PKG_CONFIG()
@@ -237,12 +236,10 @@ AC_CHECK_FUNC([shmat], AC_DEFINE(HAS_SHM,1,[Has shm*() functions]))
 # AC_PATH_XTRA
 
 # arch specific things
-WCHAR32="1"
 case $host_os in
-  os2*) os2="true" ; WCHAR32="0" ;;
+  os2*) os2="true" ;;
   *) ;;
 esac
-AC_SUBST(WCHAR32)
 
 AM_CONDITIONAL(OS2, test x$os2 = xtrue)
 
@@ -407,16 +404,8 @@ AC_SUBST(X11_LIBDIR)
 PKG_CHECK_MODULES(X11, [$X11_REQUIRES])
 X11_CFLAGS="$X11_CFLAGS $XTHREAD_CFLAGS"
 
-#
-# Yes, it would be nice to put the locale data in
-# /usr/share, but the locale stuff includes loadable
-# libraries which must be located in the same directory
-# as the other locale data, so for now, everything lives
-# in ${libdir}
-#
-
-X11_LOCALEDATADIR="${X11_DATADIR}/locale"
-AX_DEFINE_DIR(XLOCALEDATADIR, X11_LOCALEDATADIR, [Location of libX11 locale data])
+X11_LOCALEDATADIR=`$PKG_CONFIG --variable=xlocaledatadir xlocale-config`
+AX_DEFINE_DIR(XLOCALEDATADIR, X11_LOCALEDATADIR, [Location of X locale data])
 AC_SUBST(X11_LOCALEDATADIR)
 
 AC_ARG_WITH(locale-lib-dir,	AS_HELP_STRING([--with-locale-lib-dir=DIR],
@@ -427,23 +416,8 @@ AX_DEFINE_DIR(XLOCALELIBDIR, X11_LOCALELIBDIR, [Location of libX11 locale librar
 AC_SUBST(X11_LOCALELIBDIR)
 
 X11_LOCALEDIR="${X11_LOCALEDATADIR}"
-AX_DEFINE_DIR(XLOCALEDIR, X11_LOCALEDIR, [Location of libX11 locale data])
+AX_DEFINE_DIR(XLOCALEDIR, X11_LOCALEDIR, [Location of X locale data])
 AC_SUBST(X11_LOCALEDIR)
-
-locales="\
- am_ET.UTF-8  armscii-8   C           cs_CZ.UTF-8  el_GR.UTF-8  en_US.UTF-8 \
- fi_FI.UTF-8  georgian-academy        georgian-ps  ibm-cp1133   iscii-dev \
- isiri-3342   iso8859-1   iso8859-10  iso8859-11   iso8859-13   iso8859-14 \
- iso8859-15   iso8859-2   iso8859-3   iso8859-4    iso8859-5    iso8859-6 \
- iso8859-7    iso8859-8   iso8859-9   iso8859-9e   ja           ja.JIS \
- ja_JP.UTF-8  ja.SJIS     km_KH.UTF-8 ko           koi8-c       koi8-r \
- koi8-u       ko_KR.UTF-8 microsoft-cp1251         microsoft-cp1255 \
- microsoft-cp1256         mulelao-1   nokhchi-1    pt_BR.UTF-8  ru_RU.UTF-8 \
- sr_CS.UTF-8  tatar-cyr   th_TH       th_TH.UTF-8  tscii-0      vi_VN.tcvn \
- vi_VN.viscii zh_CN       zh_CN.gb18030            zh_CN.gbk    zh_CN.UTF-8 \
- zh_HK.big5   zh_HK.big5hkscs         zh_HK.UTF-8  zh_TW        zh_TW.big5 \
- zh_TW.UTF-8"
-AC_SUBST(locales)
 
 XKEYSYMDB="${X11_DATADIR}/XKeysymDB"
 AX_DEFINE_DIR(XKEYSYMDB, XKEYSYMDB, [Location of keysym database])
@@ -471,12 +445,9 @@ AC_CONFIG_FILES([Makefile
 		modules/om/Makefile
 		modules/om/generic/Makefile
 		src/xkb/Makefile
-		nls/Makefile
 		specs/Makefile
 		specs/i18n/Makefile
-		specs/i18n/compose/Makefile
 		specs/i18n/framework/Makefile
-		specs/i18n/localedb/Makefile
 		specs/i18n/trans/Makefile
 		specs/libX11/Makefile
 		specs/XIM/Makefile

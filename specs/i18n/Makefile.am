@@ -21,4 +21,4 @@
 # DEALINGS IN THE SOFTWARE.
 #
 
-SUBDIRS=compose framework localedb trans
+SUBDIRS=framework trans

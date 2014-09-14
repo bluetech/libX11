@@ -3,8 +3,7 @@ ORDER=src modules
 else
 ORDER=modules src
 endif
-# Order: nls before specs
-SUBDIRS=include $(ORDER) nls man specs
+SUBDIRS=include $(ORDER) man specs
 
 ACLOCAL_AMFLAGS = -I m4
 
